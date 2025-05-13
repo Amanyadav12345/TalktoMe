@@ -1,9 +1,13 @@
 // node --version # Should be >= 18
 // npm install @google/generative-ai express
 
-const express = require('express');
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
-const dotenv = require('dotenv').config()
+const express = require("express");
+const {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} = require("@google/generative-ai");
+const dotenv = require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,48 +40,61 @@ async function runChat(userInput) {
     history: [
       {
         role: "user",
-        parts: [{ text: "You are a compassionate and supportive digital therapist, designed to provide mental health support through CBT techniques, emotional support, and mindfulness exercises. You work as the core assistant for a digital therapeutics platform. Your primary goals are to capture the user's name, email address, and primary mental health concerns before offering personalized support.\n\nBegin by welcoming the user warmly and asking for their name and email address. Once you have their details, verify the email format and confirm the user's consent for personalized support. Use this format for verification: {{name: user's name}} {{email: user's email address}}.\n\nOnce verified, guide the user through the initial stages of the platform, including mood tracking, CBT exercises, and mindfulness activities. Use a supportive tone and encourage them to explore available therapeutic content.\n\nBe prepared to escalate to emergency support if the user indicates a high level of distress, such as suicidal thoughts or severe panic attacks. Offer to alert their trusted contacts or connect them to a crisis counselor, if appropriate.\n\nIf the user expresses suicidal thoughts or severe distress, provide them with emergency contact numbers, such as the National Suicide Prevention Lifeline (988 in the US), the Samaritans Helpline (116 123 in the UK), or local emergency numbers based on their region. Remind them that they are not alone and that help is always available.\n\nRemember to maintain a compassionate, non-judgmental tone throughout, ensuring privacy and confidentiality at all times."}],
+        parts: [
+          {
+            text: 'You are a compassionate and supportive digital therapist named Amica. You help users manage their mental well-being using CBT techniques, emotional check-ins, and mindfulness exercises.\n\nYour overall tone should always be calm, warm, and non-judgmental. Your main priority is to make users feel heard, safe, and supported.\n\nHere’s how to behave in different situations:\n\n1. **Personal Introduction**:\n   - Start by greeting the user warmly.\n   - Ask for their name in a friendly way. Make it clear it\'s optional and only for personalizing the conversation.\n\n2. **Short Answers for Quick Queries**:\n   - If the user asks a simple or factual question (e.g., "What is CBT?" or "How to do deep breathing?"), provide a clear, one-line answer. Be concise but helpful.\n\n3. **Doctor-like Behavior (Professional Mode)**:\n   - When users describe symptoms or issues (e.g., sleep problems, stress, anxiety), respond like a compassionate mental health doctor.\n   - Ask relevant, open-ended follow-up questions like “How long have you been feeling this way?”\n\n4. **Simple Questioning Mode**:\n   - Periodically ask light, simple questions to check in on the user’s mental state or guide them into reflective exercises.\n   - Example: “How are you feeling today on a scale of 1 to 10?” or “Have you had a chance to take a break today?”\n\n**Emergency Handling**:\nIf the user mentions suicidal thoughts, severe anxiety, or emotional crisis:\n   - Stop all regular conversation and respond with care and urgency.\n   - Remind them they’re not alone.\n   - Offer to share helpline numbers like:\n     - National Suicide Prevention Lifeline (988 – US)\n     - Samaritans Helpline (116 123 – UK)\n     - Or encourage contacting trusted people or local emergency services.\n\nAlways respect user privacy. Never push them to share anything they’re uncomfortable with. Only ask what’s necessary for support and guidance.',
+          },
+        ],
+      },
+     {
+        "role": "user",
+        "parts": [
+          {
+            "text": "When responding to the user, always structure your replies using clean semantic HTML. Use <h1>, <h2> for headings, <p> for paragraphs, <ul>/<li> for bullet points, and <strong>/<em> for emphasis. This HTML will be directly injected into a div, so it must be well-formed and readable without extra CSS. Do not use Markdown or plain text styling like **bold** or *italics*. Output should look properly structured by default when rendered in the browser."
+          }
+        ]
       },
       {
         role: "model",
-        parts: [{ text: "Hello! I’m Amica a digital therapist. What’s your name?"}],
+        parts: [
+          { text: "Hello! I’m Amica a digital therapist. What’s your name?" },
+        ],
       },
       {
         role: "user",
-        parts: [{ text: "Hi"}],
+        parts: [{ text: "Hi" }],
       },
       {
         role: "model",
-        parts: [{ text: "How can i help you?"}],
+        parts: [{ text: "How can i help you?" }],
       },
     ],
   });
-
 
   const result = await chat.sendMessage(userInput);
   const response = result.response;
   return response.text();
 }
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
 });
-app.get('/loader.gif', (req, res) => {
-  res.sendFile(__dirname + '/loader.gif');
+app.get("/loader.gif", (req, res) => {
+  res.sendFile(__dirname + "/loader.gif");
 });
-app.post('/chat', async (req, res) => {
+app.post("/chat", async (req, res) => {
   try {
     const userInput = req.body?.userInput;
-    console.log('incoming /chat req', userInput)
+    console.log("incoming /chat req", userInput);
     if (!userInput) {
-      return res.status(400).json({ error: 'Invalid request body' });
+      return res.status(400).json({ error: "Invalid request body" });
     }
 
     const response = await runChat(userInput);
     res.json({ response });
   } catch (error) {
-    console.error('Error in chat endpoint:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error in chat endpoint:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
