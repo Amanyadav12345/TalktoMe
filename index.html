@@ -8,8 +8,11 @@
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen">
     <div class="w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[40%] bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-t-2xl text-center">
+        <div class="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-t-2xl flex justify-between items-center">
             <h1 class="text-2xl font-semibold">Amica</h1>
+            <button id="doctor-corner-btn" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm hover:bg-gray-100 transition">
+                Doctor's Corner
+            </button>
         </div>
         
         <div id="chat-history" class="p-6 h-[60vh] md:h-[70vh] overflow-y-auto space-y-4">
@@ -33,7 +36,7 @@
         const userInput = document.getElementById('user-input');
         const form = document.getElementById('chat-form');
         const loader = document.getElementById('loader');
-
+        const sentimentHistory = [];
         async function sendMessage() {
             const userMessage = userInput.value.trim();
             if (!userMessage) return;
@@ -62,7 +65,13 @@
 
                 const data = await response.json();
                 const botMessage = data.response || 'I am currently unavailable. Please try again later.';
-
+                if (data.sentiment) {
+                sentimentHistory.push({
+                    text: userMessage,
+                    sentiment: data.sentiment,
+                    time: new Date().toISOString()
+                });
+                }
                 // Add bot message to the chat history
                 let cleanedMessage = botMessage.trim();
 
@@ -92,6 +101,10 @@
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             sendMessage();
+        });
+        document.getElementById('doctor-corner-btn').addEventListener('click', () => {
+        localStorage.setItem('sentimentHistory', JSON.stringify(sentimentHistory));
+        window.location.href = '/Doctor-corner.html';
         });
     </script>
 </body>

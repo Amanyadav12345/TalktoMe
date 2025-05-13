@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Doctor's Corner - Full Sentiment Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">Doctor's Corner - Full Sentiment Dashboard</h1>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Sentiment Bar Chart -->
+    <div class="bg-white rounded-xl shadow-md p-4">
+      <h2 class="text-xl font-semibold text-gray-700 mb-2">Sentiment Frequency</h2>
+      <canvas id="sentimentChart"></canvas>
+    </div>
+
+    <!-- Sentiment Pie Chart -->
+    <div class="bg-white rounded-xl shadow-md p-4">
+      <h2 class="text-xl font-semibold text-gray-700 mb-2">Sentiment Distribution</h2>
+      <canvas id="sentimentPieChart"></canvas>
+    </div>
+
+    <!-- Sentiment Over Time Line Chart -->
+    <div class="bg-white rounded-xl shadow-md p-4 col-span-1 md:col-span-2">
+      <h2 class="text-xl font-semibold text-gray-700 mb-2">Sentiment Over Time</h2>
+      <canvas id="sentimentLineChart"></canvas>
+    </div>
+
+    <!-- Alerts Table -->
+    <div class="bg-white rounded-xl shadow-md p-4 col-span-1 md:col-span-2">
+      <h2 class="text-xl font-semibold text-red-600 mb-2">Alert Messages</h2>
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="p-2">Time</th>
+            <th class="p-2">Message</th>
+          </tr>
+        </thead>
+        <tbody id="alertTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script>
+    const rawData = JSON.parse(localStorage.getItem('sentimentHistory') || '[]');
+    const sentimentCounts = { positive: 0, negative: 0, neutral: 0, alert: 0 };
+    const labels = [];
+    const timeSeries = [];
+    const lineSentiments = [];
+    const alerts = [];
+
+    rawData.forEach(entry => {
+      const time = new Date(entry.time);
+      const sentiment = entry.sentiment || "neutral";
+
+      sentimentCounts[sentiment] = (sentimentCounts[sentiment] || 0) + 1;
+      labels.push(time.toLocaleTimeString());
+      timeSeries.push(time.toLocaleTimeString());
+      lineSentiments.push(sentiment);
+
+      if (sentiment === "alert") {
+        alerts.push(entry);
+      }
+    });
+
+    const sentimentChart = new Chart(document.getElementById('sentimentChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Positive', 'Neutral', 'Negative', 'Alert'],
+        datasets: [{
+          label: 'Frequency',
+          data: [sentimentCounts.positive, sentimentCounts.neutral, sentimentCounts.negative, sentimentCounts.alert],
+          backgroundColor: ['#34d399', '#fbbf24', '#f87171', '#ef4444']
+        }]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    const sentimentPieChart = new Chart(document.getElementById('sentimentPieChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Positive', 'Neutral', 'Negative', 'Alert'],
+        datasets: [{
+          data: [sentimentCounts.positive, sentimentCounts.neutral, sentimentCounts.negative, sentimentCounts.alert],
+          backgroundColor: ['#34d399', '#fbbf24', '#f87171', '#ef4444']
+        }]
+      },
+      options: { responsive: true }
+    });
+
+    const sentimentLineChart = new Chart(document.getElementById('sentimentLineChart'), {
+      type: 'line',
+      data: {
+        labels: timeSeries,
+        datasets: [{
+          label: 'Sentiment Timeline',
+          data: lineSentiments.map(s => {
+            if (s === 'positive') return 1;
+            if (s === 'neutral') return 0;
+            if (s === 'negative') return -1;
+            if (s === 'alert') return -2;
+          }),
+          borderColor: '#3b82f6',
+          fill: false
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            min: -2,
+            max: 1,
+            ticks: {
+              callback: function(value) {
+                return ['Alert', 'Negative', 'Neutral', 'Positive'][value + 2];
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const alertTable = document.getElementById("alertTableBody");
+    alerts.forEach(entry => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td class='p-2 text-red-600'>${new Date(entry.time).toLocaleString()}</td><td class='p-2'>${entry.text}</td>`;
+      alertTable.appendChild(row);
+    });
+  </script>
+</body>
+</html>
