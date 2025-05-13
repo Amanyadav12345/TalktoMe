@@ -7,12 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 flex justify-center items-center min-h-screen">
-    <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div class="w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[40%] bg-white rounded-2xl shadow-lg overflow-hidden">
         <div class="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-t-2xl text-center">
             <h1 class="text-2xl font-semibold">Amica</h1>
         </div>
         
-        <div id="chat-history" class="p-6 h-96 overflow-y-auto space-y-4">
+        <div id="chat-history" class="p-6 h-[60vh] md:h-[70vh] overflow-y-auto space-y-4">
             <!-- Chat messages will go here -->
         </div>
         
@@ -64,10 +64,17 @@
                 const botMessage = data.response || 'I am currently unavailable. Please try again later.';
 
                 // Add bot message to the chat history
+                let cleanedMessage = botMessage.trim();
+
+                // Check if it starts with ```html and ends with ```
+                if (cleanedMessage.startsWith("```html") && cleanedMessage.endsWith("```")) {
+                cleanedMessage = cleanedMessage.slice(7, -3).trim(); // Remove the wrapper
+                }
+
                 chatHistory.innerHTML += `
-                    <div class="bg-green-100 p-3 rounded-md text-left self-start">
-                        <span class="text-gray-700">${botMessage}</span>
-                    </div>
+                <div class="bg-green-100 p-3 rounded-md text-left self-start">
+                    <span class="text-gray-700">${cleanedMessage}</span>
+                </div>
                 `;
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             } catch (error) {

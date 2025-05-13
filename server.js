@@ -46,11 +46,11 @@ async function runChat(userInput) {
           },
         ],
       },
-     {
-        "role": "user",
-        "parts": [
+      {
+      role: "model",
+      parts: [
           {
-            "text": "When responding to the user, always structure your replies using clean semantic HTML. Use <h1>, <h2> for headings, <p> for paragraphs, <ul>/<li> for bullet points, and <strong>/<em> for emphasis. This HTML will be directly injected into a div, so it must be well-formed and readable without extra CSS. Do not use Markdown or plain text styling like **bold** or *italics*. Output should look properly structured by default when rendered in the browser."
+            text: "When you respond, structure your message using clean semantic HTML: use <p> for each paragraph, <ul> and <li> for lists, and <strong> for important points. Do not use Markdown (like *, **, or backticks). Just return plain HTML that can go inside a <div>."
           }
         ]
       },
@@ -61,8 +61,12 @@ async function runChat(userInput) {
         ],
       },
       {
-        role: "user",
-        parts: [{ text: "Hi" }],
+        role: "model",
+        parts: [{ text: "Talk like a doctor and give me suggestions to calm down and ask bullet pointed questions" }],
+      },
+      {
+        role: "model",
+        parts: [{ text: "The response should be crisp and short as person reading the message feels like someone real is taling to him/her." }],
       },
       {
         role: "model",
