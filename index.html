@@ -1,111 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Amica : a comforting choice</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 flex justify-center items-center min-h-screen">
-    <div class="w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[40%] bg-white rounded-2xl shadow-lg overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-t-2xl flex justify-between items-center">
-            <h1 class="text-2xl font-semibold">Amica</h1>
-            <button id="doctor-corner-btn" class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm hover:bg-gray-100 transition">
-                Doctor's Corner
-            </button>
-        </div>
-        
-        <div id="chat-history" class="p-6 h-[60vh] md:h-[70vh] overflow-y-auto space-y-4">
-            <!-- Chat messages will go here -->
-        </div>
-        
-        <form id="chat-form" class="flex p-4 border-t border-gray-200">
-            <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow p-3 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
-            <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-r-md hover:bg-blue-600 transition-all">
-                Send
-            </button>
-        </form>
+  </head>
+  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
+    <div
+      class="w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[40%] bg-white rounded-2xl shadow-lg overflow-hidden"
+    >
+      <div
+        class="bg-gradient-to-r from-blue-500 to-teal-500 text-white p-6 rounded-t-2xl flex justify-between items-center"
+      >
+        <h1 class="text-2xl font-semibold">Amica</h1>
+        <button
+          id="doctor-corner-btn"
+          class="bg-white text-blue-600 px-3 py-1 rounded-md text-sm hover:bg-gray-100 transition"
+        >
+          Doctor's Corner
+        </button>
+      </div>
+
+      <div
+        id="chat-history"
+        class="p-6 h-[60vh] md:h-[70vh] overflow-y-auto space-y-4"
+      >
+        <!-- Chat messages will go here -->
+      </div>
+
+      <form id="chat-form" class="flex p-4 border-t border-gray-200">
+        <input
+          type="text"
+          id="user-input"
+          placeholder="Type your message..."
+          class="flex-grow p-3 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          autocomplete="off"
+        />
+        <button
+          type="submit"
+          class="bg-blue-500 text-white px-6 py-3 rounded-r-md hover:bg-blue-600 transition-all"
+        >
+          Send
+        </button>
+      </form>
     </div>
 
-    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-opacity-75 bg-gray-800 hidden">
-        <img src="loader.gif" alt="Loading..." class="w-32">
+    <div
+      id="loader"
+      class="fixed inset-0 flex items-center justify-center bg-opacity-75 bg-gray-800 hidden"
+    >
+      <img src="loader.gif" alt="Loading..." class="w-32" />
     </div>
 
     <script>
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
-        const form = document.getElementById('chat-form');
-        const loader = document.getElementById('loader');
-        const sentimentHistory = [];
-        async function sendMessage() {
-            const userMessage = userInput.value.trim();
-            if (!userMessage) return;
+      const chatHistory = document.getElementById("chat-history");
+      const userInput = document.getElementById("user-input");
+      const form = document.getElementById("chat-form");
+      const loader = document.getElementById("loader");
+      const sentimentHistory = [];
+      async function sendMessage() {
+        const userMessage = userInput.value.trim();
+        if (!userMessage) return;
 
-            // Clear the input field
-            userInput.value = '';
+        // Clear the input field
+        userInput.value = "";
 
-            // Add user message to the chat history
-            chatHistory.innerHTML += `
+        // Add user message to the chat history
+        chatHistory.innerHTML += `
                 <div class="bg-blue-100 p-3 rounded-md text-right self-end">
                     <span class="text-gray-700">${userMessage}</span>
                 </div>
             `;
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
 
-            try {
-                loader.classList.remove('hidden');
-                
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userInput: userMessage }),
-                });
+        try {
+          loader.classList.remove("hidden");
 
-                const data = await response.json();
-                const botMessage = data.response || 'I am currently unavailable. Please try again later.';
-                if (data.sentiment) {
-                sentimentHistory.push({
-                    text: userMessage,
-                    sentiment: data.sentiment,
-                    time: new Date().toISOString()
-                });
-                }
-                // Add bot message to the chat history
-                let cleanedMessage = botMessage.trim();
+          const response = await fetch("/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ userInput: userMessage }),
+          });
 
-                // Check if it starts with ```html and ends with ```
-                if (cleanedMessage.startsWith("```html") && cleanedMessage.endsWith("```")) {
-                cleanedMessage = cleanedMessage.slice(7, -3).trim(); // Remove the wrapper
-                }
+          const data = await response.json();
+          const botMessage =
+            data.response ||
+            "I am currently unavailable. Please try again later.";
+          if (data.sentiment) {
+            sentimentHistory.push({
+              text: userMessage,
+              sentiment: data.sentiment,
+              time: new Date().toISOString(),
+            });
+          }
+          // Add bot message to the chat history
+          let cleanedMessage = botMessage.trim();
 
-                chatHistory.innerHTML += `
+          // Check if it starts with ```html and ends with ```
+          if (
+            cleanedMessage.startsWith("```html") &&
+            cleanedMessage.endsWith("```")
+          ) {
+            cleanedMessage = cleanedMessage.slice(7, -3).trim(); // Remove the wrapper
+          }
+
+          chatHistory.innerHTML += `
                 <div class="bg-green-100 p-3 rounded-md text-left self-start">
                     <span class="text-gray-700">${cleanedMessage}</span>
                 </div>
                 `;
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            } catch (error) {
-                console.error('Error:', error);
-                chatHistory.innerHTML += `
+          chatHistory.scrollTop = chatHistory.scrollHeight;
+        } catch (error) {
+          console.error("Error:", error);
+          chatHistory.innerHTML += `
                     <div class="bg-red-100 p-3 rounded-md text-left self-start">
                         <span class="text-red-700">Something went wrong. Please try again later.</span>
                     </div>
                 `;
-            } finally {
-                loader.classList.add('hidden');
-            }
+        } finally {
+          loader.classList.add("hidden");
         }
+      }
 
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            sendMessage();
-        });
-        document.getElementById('doctor-corner-btn').addEventListener('click', () => {
-        localStorage.setItem('sentimentHistory', JSON.stringify(sentimentHistory));
-        window.location.href = '/Doctor-corner.html';
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        sendMessage();
+      });
+      document
+        .getElementById("doctor-corner-btn")
+        .addEventListener("click", () => {
+          localStorage.setItem(
+            "sentimentHistory",
+            JSON.stringify(sentimentHistory)
+          );
+          window.location.href = "/Doctor-corner.html";
         });
     </script>
-</body>
+  </body>
 </html>

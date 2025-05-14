@@ -126,14 +126,22 @@ app.post("/chat", async (req, res) => {
       return res.status(400).json({ error: "Invalid request body" });
     }
 
-    // Step 1: Get sentiment from Python
+    // Get client IP (works behind proxies too)
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    // Analyze sentiment (Python call)
     const sentiment = await analyzeSentimentWithPython(userInput);
-    console.log("Sentiment:", sentiment);
+    console.log("Sentiment:", sentiment, "| IP:", clientIp);
 
-    // Step 2: Send to Gemini AI
+    // Log or alert on crisis
+    if (sentiment === "alert") {
+      console.log("🚨 SOS Alert Detected from IP:", clientIp);
+      // Optional: send to database, email, SMS, webhook etc.
+    }
+
     const response = await runChat(userInput);
+    res.json({ response, sentiment, ip: clientIp });
 
-    res.json({ response, sentiment });
   } catch (error) {
     console.error("Error in chat endpoint:", error);
     res.status(500).json({ error: "Internal Server Error" });
