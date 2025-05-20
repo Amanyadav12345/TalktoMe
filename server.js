@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 app.use(express.json());
 const MODEL_NAME = "gemini-2.0-flash";
-const API_KEY = process.env.API_KEY;
+const API_KEY = "AIzaSyCBeq0n40QiiCJ1nyATynYwpTasKm_rMPs";
 const sentimentHistory = [];
 const { spawn } = require("child_process");
 
